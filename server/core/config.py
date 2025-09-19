@@ -1,6 +1,5 @@
-import os
 from pydantic_settings import BaseSettings
-from typing import Optional
+from typing import List
 
 class Settings(BaseSettings):
     """Application settings."""
@@ -12,6 +11,8 @@ class Settings(BaseSettings):
     FIREBASE_CLIENT_ID: str
     FIREBASE_AUTH_URI: str = "https://accounts.google.com/o/oauth2/auth"
     FIREBASE_TOKEN_URI: str = "https://oauth2.googleapis.com/token"
+    
+    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:4200"]
     
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
