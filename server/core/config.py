@@ -19,6 +19,10 @@ class Settings(BaseSettings):
     
     OPENAI_API_KEY: str
     
+    UPLOAD_DIRECTORY: str = "uploads"
+    MAX_FILE_SIZE: int = 10 * 1024 * 1024  # 10MB
+    ALLOWED_EXTENSIONS: set = {".pdf", ".docx", ".doc", ".txt"}
+    
     class Config:
         env_file = ".env"
         case_sensitive = True
