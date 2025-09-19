@@ -19,3 +19,9 @@ Thumbs.db
 # IDE configs
 .vscode/
 .idea/
+# Local file uploads
+uploads/
+*.pdf
+*.docx
+*.doc
+*.txt
