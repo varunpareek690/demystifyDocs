@@ -1,32 +1,41 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-# from api.v1.router import api_router
+from api.v1.router import api_router
+from core.config import settings
 from core.firebase_config import initialize_firebase
 
-def create_application() -> FastAPI:
-    """Create FastAPI application with all configurations."""
-    application = FastAPI(
-        title="Legal AI Backend",
-        description="AI solution for simplifying legal documents",
-        version="1.0.0",
-    )
+app = FastAPI(
+    title="Legal AI Backend",
+    description="AI solution for simplifying legal documents",
+    version="1.0.0",
+)
 
-    application.add_middleware(
-        CORSMiddleware,
-        allow_origins=["http://localhost:4200"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+@app.on_event("startup")
+def on_startup():
+    """Initializes directories and services when the app starts."""
+    print("🚀 Starting up...")
+    uploads_dir = settings.UPLOAD_DIRECTORY
+    os.makedirs(os.path.join(uploads_dir, "documents"), exist_ok=True)
+    os.makedirs(os.path.join(uploads_dir, "temp"), exist_ok=True)
+    
+    try:
+        initialize_firebase()
+        print("✓ Firebase initialized")
+    except Exception as e:
+        print(f"✗ Firebase initialization failed: {e}")
 
-    initialize_firebase()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-    # application.include_router(api_router, prefix="/api/v1")
+app.include_router(api_router, prefix="/api/v1")
 
-    return application
-
-app = create_application()
-
-@app.get("/")
-async def root(): 
-    return {"message": "Legal AI Backend API", "version": "1.0.0"}
+@app.get("/", tags=["Server Health"])
+def root():
+    """A simple health check endpoint."""
+    return {"message": "Legal AI Backend is running"}
