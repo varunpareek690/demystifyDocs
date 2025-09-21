@@ -1,0 +1,34 @@
+.placeholder-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  text-align: center;
+  color: #e0e0e0;
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 500;
+  color: #F58B27;
+}
+
+.go-back-button {
+  margin-top: 2rem;
+  background-color: #333;
+  color: #e0e0e0;
+  font-weight: bold;
+  font-size: 1rem;
+  border: 1px solid #555;
+  border-radius: 50px;
+  padding: 0.75rem 2rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.go-back-button:hover {
+  background-color: #F58B27;
+  border-color: #F58B27;
+  color: #121212;
+}
