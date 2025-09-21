@@ -7,7 +7,7 @@ from vertexai.generative_models import GenerativeModel, ChatSession as VertexCha
 import vertexai
 from core.config import settings
 from utils.exceptions import ServiceUnavailableError
-from utils.text_chunking import TextChunker
+from utils.chunking import TextChunker
 
 class VertexAIService:
     """Vertex AI service for document summarization and chat."""
