@@ -59,3 +59,99 @@ class AIService:
 
         except Exception as e:
             raise ServiceUnavailableError(f"AI service error: {str(e)}")
+
+    async def chat_with_document(self, document_content: str, document_title: str, 
+                               user_message: str, chat_history: List[Dict] = None) -> str:
+        """Chat with AI about a specific document."""
+        try:
+            # Build context from document and chat history
+            system_prompt = f"""You are an expert legal AI assistant helping users understand legal documents. 
+
+DOCUMENT CONTEXT:
+Title: {document_title}
+Content: {document_content[:3000]}  # Limit to avoid token limits
+
+Your role is to:
+1. Answer questions about the document clearly and accurately
+2. Explain legal terms in plain English
+3. Highlight important obligations, rights, and deadlines
+4. Provide practical advice when appropriate
+5. Reference specific sections of the document when relevant
+
+Be conversational, helpful, and always prioritize the user's understanding. If you're unsure about something, say so rather than guessing."""
+
+            # Build conversation history
+            messages = [{"role": "system", "content": system_prompt}]
+            
+            # Add recent chat history if available
+            if chat_history:
+                for msg in chat_history[-6:]:  # Last 6 messages for context
+                    if msg['role'] in ['user', 'ai']:
+                        role = "user" if msg['role'] == 'user' else "assistant"
+                        messages.append({"role": role, "content": msg['content']})
+            
+            # Add current user message
+            messages.append({"role": "user", "content": user_message})
+
+            response = openai.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=messages,
+                max_tokens=800,
+                temperature=0.7
+            )
+
+            return response.choices[0].message.content
+
+        except Exception as e:
+            raise ServiceUnavailableError(f"Chat AI service error: {str(e)}")
+
+    async def generate_document_questions(self, document_content: str, document_title: str) -> List[str]:
+        """Generate suggested questions about a document."""
+        try:
+            prompt = f"""Based on the following legal document, generate 5 helpful questions that a user might want to ask to better understand the document:
+
+Document Title: {document_title}
+Document Content: {document_content[:2000]}
+
+Generate questions that would help someone understand:
+- Key obligations and rights
+- Important deadlines or dates
+- Potential risks or concerns
+- Practical implications
+- Next steps they might need to take
+
+Format as a simple JSON array of strings: ["question1", "question2", ...]
+"""
+
+            response = openai.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "You are a legal expert who helps people understand documents by suggesting relevant questions."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=400,
+                temperature=0.8
+            )
+
+            import json
+            try:
+                questions = json.loads(response.choices[0].message.content)
+                return questions if isinstance(questions, list) else []
+            except json.JSONDecodeError:
+                return [
+                    "What are my main obligations under this document?",
+                    "What are my key rights?",
+                    "Are there any important deadlines I need to know about?",
+                    "What are the potential consequences if I don't comply?",
+                    "What should I do next after reading this document?"
+                ]
+
+        except Exception as e:
+            # Return default questions if AI service fails
+            return [
+                "What are the main points of this document?",
+                "What obligations do I have?",
+                "What are my rights under this agreement?",
+                "Are there any important deadlines?",
+                "What should I be most concerned about?"
+            ]
