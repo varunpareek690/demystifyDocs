@@ -25,3 +25,6 @@ uploads/
 *.docx
 *.doc
 *.txt
+
+# Node modules
+node_modules/
