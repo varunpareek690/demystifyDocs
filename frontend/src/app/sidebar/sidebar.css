@@ -1,0 +1,149 @@
+/* ==============================================
+  CRITICAL LAYOUT FIX
+  ==============================================
+*/
+:host {
+  display: block;
+  height: 100%; /* Should be 100% to fill the parent, not 100vh */
+  position: relative;
+  z-index: 20;
+  -webkit-font-smoothing: antialiased; /* For crisper text */
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.sidebar-container {
+  background-color: #1e1e1e;
+  height: 100%;
+  width: 260px; /* Default width is now controlled here */
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  box-sizing: border-box;
+  border-right: 1px solid #333;
+  transition: width 0.3s ease-in-out;
+}
+
+/* --- Collapsed State Styles --- */
+:host-context(.collapsed) .sidebar-container {
+  width: 80px;
+}
+
+:host-context(.collapsed) .new-chat-button,
+:host-context(.collapsed) .settings-button {
+  justify-content: center;
+}
+
+:host-context(.collapsed) .search-section {
+  justify-content: center;
+  background: none;
+}
+
+/* ADDED: Pop-out effect for settings button when collapsed */
+:host-context(.collapsed) .settings-button {
+  position: absolute;
+  bottom: 1rem;
+  left: 100%;
+  width: 48px;
+  height: 48px;
+  margin-left: 1rem;
+  background-color: #3c3c41;
+  border-radius: 50%;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+}
+
+.button-text {
+  transition: opacity 0.2s ease-in-out;
+}
+
+
+/* --- Header and Buttons --- */
+.sidebar-header, .sidebar-footer { flex-shrink: 0; }
+.sidebar-footer {
+  margin-top: auto;
+}
+.menu-button { background: none; border: none; color: #999; cursor: pointer; padding: 0.5rem; }
+.menu-button:hover { color: #fff; }
+.new-chat-button, .settings-button {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  border-radius: 5px;
+  padding: 0.75rem;
+  transition: all 0.2s ease;
+}
+.new-chat-button:hover, .settings-button:hover { background-color: #333; color: #fff; }
+.new-chat-button { border: 1px solid #444; border-radius: 50px; text-align: left; margin-bottom: 1rem; }
+.new-chat-button:hover { border-color: #F58B27; box-shadow: 0 0 10px rgba(245, 139, 39, 0.5); color: #F58B27; }
+.new-chat-button span:first-child { font-size: 1.5rem; line-height: 1; }
+
+/* --- Search Bar --- */
+.search-section {
+  display: flex;
+  align-items: center;
+  background-color: #333;
+  border: 1px solid #333;
+  border-radius: 20px;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+.search-icon {
+  color: #999;
+  flex-shrink: 0;
+  transition: color 0.3s ease;
+}
+.search-input {
+  background: none;
+  border: none;
+  color: #e0e0e0;
+  width: 100%;
+  margin-left: 0.5rem;
+  font-size: 0.9rem;
+}
+.search-input:focus { outline: none; }
+
+/* ADDED: Glow effect for active search bar */
+.search-section:has(.search-input:focus) {
+  border-color: #F58B27;
+  box-shadow: 0 0 10px rgba(245, 139, 39, 0.5);
+}
+.search-section:has(.search-input:focus) .search-icon {
+  color: #F58B27;
+}
+
+
+/* --- Recent Chats --- */
+.recent-chats {
+  overflow-y: auto;
+}
+.recent-title { color: #888; font-size: 0.9rem; margin-bottom: 1rem; }
+.recent-chats ul { list-style: none; padding: 0; margin: 0; }
+.recent-chats li { color: #ccc; padding: 0.75rem 0.5rem; border-radius: 5px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.recent-chats li:hover { background-color: #333; }
+
+/* ADDED: Style for a selected/active chat item */
+.recent-chats li.active {
+  background-color: #3c3c41;
+  color: #fff;
+}
+
+/* ADDED: Custom scrollbar styling for a modern look */
+.recent-chats::-webkit-scrollbar {
+  width: 8px;
+}
+.recent-chats::-webkit-scrollbar-track {
+  background: transparent;
+}
+.recent-chats::-webkit-scrollbar-thumb {
+  background-color: #444;
+  border-radius: 10px;
+  border: 2px solid #1e1e1e;
+}
+.recent-chats::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}

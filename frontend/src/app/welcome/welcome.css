@@ -1,0 +1,109 @@
+:host {
+  display: block;
+  height: 100%;
+  /* The main background color will show through if the image is transparent */
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+.welcome-container {
+  /* Positioning is needed for the background pseudo-element */
+  position: relative;
+  z-index: 1;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  text-align: center;
+  padding: 2rem;
+  box-sizing: border-box; /* Ensures padding doesn't add to the height/width */
+}
+
+/* This ::before pseudo-element holds our background image */
+.welcome-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  background-image: url('/a.png');
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  /* This makes the image darker so text is readable. Adjust from 0.0 to 1.0 */
+  opacity: 0.5;
+
+  /* Places the background behind the content */
+  z-index: -1;
+}
+
+.greeting {
+  font-size: 3.5rem;
+  font-weight: 600;
+  margin: 0;
+  background: linear-gradient(90deg, #F58B27, #FFFFFF);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  color: #ccc; /* Slightly lighter to stand out from a dark background */
+  margin-top: 0.5rem;
+  margin-bottom: 3rem;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.7); /* Add a shadow for readability */
+}
+
+.upload-box {
+  border: 1px solid #666; /* Make border a bit more visible */
+  border-radius: 10px;
+  padding: 4rem 6rem;
+  margin-bottom: 3rem;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease-in-out;
+  /* Add a semi-transparent background to the box itself */
+  background-color: rgba(30, 30, 30, 0.5);
+  backdrop-filter: blur(5px);
+}
+
+.upload-box:hover {
+  background-color: rgba(30, 30, 30, 0.7);
+  border-color: #F58B27;
+  box-shadow: 0 0 15px rgba(245, 139, 39, 0.6);
+}
+
+.file-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.cta-button {
+  background-color: #F58B27;
+  color: #121212;
+  font-weight: bold;
+  font-size: 1rem;
+  border: none;
+  border-radius: 50px;
+  padding: 1rem 2.5rem;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.cta-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 20px rgba(245, 139, 39, 0.2);
+}
