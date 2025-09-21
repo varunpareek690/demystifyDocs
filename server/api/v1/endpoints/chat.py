@@ -107,13 +107,3 @@ async def delete_chat_session(
         )
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
-
-# Legacy endpoints for backward compatibility
-@router.post("/", response_model=Response)
-async def chat_legacy(current_user: User = Depends(get_current_user)):
-    """Legacy chat endpoint - redirects to session-based chat."""
-    return Response(
-        success=False,
-        message="Please use the new session-based chat endpoints: POST /chat/sessions",
-        data={"endpoint": "/api/v1/chat/sessions"}
-    )
