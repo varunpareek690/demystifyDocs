@@ -1,0 +1,30 @@
+<div class="chat-view-container">
+  <div class="pdf-viewer-section">
+    <div class="pdf-placeholder">
+      <p>Your PDF will be displayed here.</p>
+    </div>
+
+    <div class="chat-overlay-section" [class.collapsed]="isChatCollapsed()" [class.is-resizing]="isDragging()" [style.height.vh]="isChatCollapsed() ? null : chatHeightVh()">
+      <div class="resizer-y" (mousedown)="startResize($event, 'height')"></div>
+      <button class="collapse-button" (click)="toggleChat()" title="Toggle chat window">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+
+      <div class="conversation-area"></div>
+      <div class="input-area">
+        <input type="text" placeholder="Ask a question about your document...">
+        <button class="send-button" title="Send message">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="resizer-x" (mousedown)="startResize($event, 'width')"></div>
+
+  <div class="summary-section" [style.width.px]="summaryWidth()">
+    <h3 class="summary-title">Summary</h3>
+    <div class="summary-content">
+      <p>An AI-generated summary of your document will appear here.</p>
+    </div>
+  </div>

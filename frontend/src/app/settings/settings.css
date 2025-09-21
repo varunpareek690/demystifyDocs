@@ -1,0 +1,66 @@
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(10px) scale(0.98); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+:host {
+  position: absolute; /* Changed from fixed to be relative to the sidebar */
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+}
+
+.modal-backdrop {
+  width: 100vw; /* Cover the whole viewport */
+  height: 100vh;
+  position: fixed; /* Position relative to the viewport */
+  top: 0;
+  left: 0;
+  background-color: transparent; /* Backdrop is now invisible */
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-panel {
+  position: absolute;
+  bottom: 5rem; /* Position it above the settings button */
+  left: 1rem;
+  width: 250px;
+  background-color: #2a2a2e;
+  border-radius: 12px;
+  border: 1px solid #444;
+  padding: 0.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease-out;
+}
+
+.modal-panel ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.settings-option {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  background: none;
+  border: none;
+  color: #e0e0e0;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  text-align: left;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.settings-option:hover {
+  background-color: #3c3c41;
+}
