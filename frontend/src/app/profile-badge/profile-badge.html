@@ -1,0 +1,11 @@
+<div class="badge-container" *ngIf="authService.currentUser()">
+  <button class="profile-button" (click)="togglePopover()">
+    <img [src]="authService.currentUser()?.picture" alt="User profile picture" class.="profile-pic">
+  </button>
+
+  <div class="popover" *ngIf="isPopoverOpen()">
+    <p class="greeting">Hi, {{ firstName }}!</p>
+    <p class="question">Want to log out?</p>
+    <button class="logout-button" (click)="logout()">Log Out</button>
+  </div>
+</div>
