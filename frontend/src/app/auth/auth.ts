@@ -2,6 +2,7 @@ import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { AuthService } from '../auth.service';
 
 declare global {
   interface Window {
@@ -21,8 +22,12 @@ export class Auth implements OnInit, AfterViewInit {
 
   loading = false;
   error = '';
-  
-  constructor(private http: HttpClient, private router: Router) {}
+
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private authService: AuthService 
+  ) { }
 
   ngOnInit() {
     this.initializeGoogleAuth();
@@ -71,12 +76,12 @@ export class Auth implements OnInit, AfterViewInit {
       }).toPromise();
 
       console.log('Login successful:', result);
-      
+
       if (result && result.data && result.data.access_token) {
         this.authService.saveUserAndToken(result.data.access_token);
         this.router.navigate(['/welcome']);
       } else {
-         console.error('Login failed: No access_token in response');
+        console.error('Login failed: No access_token in response');
       }
     } catch (error) {
       console.error('Login failed:', error);
