@@ -1,6 +1,6 @@
 <div class="badge-container" *ngIf="authService.currentUser()">
   <button class="profile-button" (click)="togglePopover()">
-    <img [src]="authService.currentUser()?.picture" alt="User profile picture" class.="profile-pic">
+    <img [src]="authService.currentUser()?.picture" alt="User profile picture" class="profile-pic">
   </button>
 
   <div class="popover" *ngIf="isPopoverOpen()">
