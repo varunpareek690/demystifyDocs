@@ -1,6 +1,7 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 declare global {
   interface Window {
@@ -17,6 +18,9 @@ declare global {
       <div class="auth-card">
         <h2>Sign in to Your App</h2>
         <p>Use your Google account to continue</p>
+        
+        <div *ngIf="loading" class="loading">Loading...</div>
+        <div *ngIf="error" class="error">{{error}}</div>
         
         <div id="g_id_onload"></div>
         <div id="g_id_signin"></div>
@@ -66,30 +70,61 @@ declare global {
       cursor: pointer;
       width: 100%;
       margin-top: 1rem;
+      transition: box-shadow 0.3s;
     }
     
     .google-btn:hover {
       box-shadow: 0 1px 3px rgba(0,0,0,0.3);
     }
+    
+    .google-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .loading {
+      color: #666;
+      margin: 1rem 0;
+    }
+    
+    .error {
+      color: #d32f2f;
+      margin: 1rem 0;
+      padding: 0.5rem;
+      background: #ffebee;
+      border-radius: 4px;
+    }
   `]
 })
 export class Auth implements OnInit, AfterViewInit {
-  private apiUrl = 'http://10.238.216.143:8080/api/v1'; // Remember to replace this with your actual backend IP
+  // Update API URL to match your backend
+  private apiUrl = 'http://localhost:8080/api/v1'; // Changed from the IP address
   
-  constructor(private http: HttpClient) {}
+  loading = false;
+  error = '';
+  
+  constructor(private http: HttpClient, private router: Router) {}
 
   ngOnInit() {
+    // Check if user is already logged in
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      this.router.navigate(['/welcome']);
+      return;
+    }
+    
     this.initializeGoogleAuth();
   }
 
   ngAfterViewInit() {
-    // Render the official Google button after the view is initialized
     setTimeout(() => this.renderGoogleButton(), 100);
   }
 
   async initializeGoogleAuth() {
     try {
-      // Get the Google Client ID dynamically from your backend
+      this.loading = true;
+      this.error = '';
+      
       const config: any = await this.http.get(`${this.apiUrl}/auth/google/config`).toPromise();
       
       if (window.google) {
@@ -97,9 +132,14 @@ export class Auth implements OnInit, AfterViewInit {
           client_id: config.data.client_id,
           callback: this.handleCredentialResponse.bind(this)
         });
+      } else {
+        this.error = 'Google SDK not loaded';
       }
     } catch (error) {
       console.error('Failed to initialize Google Auth:', error);
+      this.error = 'Failed to initialize Google Auth';
+    } finally {
+      this.loading = false;
     }
   }
 
@@ -123,35 +163,45 @@ export class Auth implements OnInit, AfterViewInit {
 
   handleCredentialResponse(response: any) {
     if (response.credential) {
-      // This is the ID token from Google
       this.loginWithGoogle(response.credential);
     }
   }
 
   async loginWithGoogle(idToken: string) {
     try {
-      // Send the Google ID token to your backend for verification
+      this.loading = true;
+      this.error = '';
+      
       const result: any = await this.http.post(`${this.apiUrl}/auth/google`, { 
         id_token: idToken 
       }).toPromise();
       
       console.log('Login successful:', result);
       
-      // After successful login, your backend should return your own app's token.
-      // You would then save it and redirect the user.
-      // Example:
-      // localStorage.setItem('authToken', result.data.access_token);
-      // window.location.href = '/welcome';
+      if (result.success && result.data.access_token) {
+        // Store the token
+        localStorage.setItem('authToken', result.data.access_token);
+        localStorage.setItem('user', JSON.stringify(result.data.user));
+        
+        // Redirect to welcome page
+        this.router.navigate(['/welcome']);
+      } else {
+        this.error = 'Login failed: Invalid response';
+      }
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login failed:', error);
+      this.error = error.error?.detail || 'Login failed. Please try again.';
+    } finally {
+      this.loading = false;
     }
   }
 
-  // This is a fallback to trigger the pop-up if the button doesn't render
   signInWithGoogle() {
     if (window.google && window.google.accounts) {
       window.google.accounts.id.prompt();
+    } else {
+      this.error = 'Google authentication is not available';
     }
   }
 }
