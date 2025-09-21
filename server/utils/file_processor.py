@@ -1,142 +1,170 @@
-import io
-import PyPDF2
-from docx import Document as DocxDocument
-from typing import Tuple, Optional
+import os
+import asyncio
+from typing import Tuple
 from fastapi import UploadFile
-from pathlib import Path
 from core.config import settings
+from utils.exceptions import FileProcessingError
+
 
 class FileProcessor:
-    """Handle file processing for different document types."""
-    
-    ALLOWED_EXTENSIONS = settings.ALLOWED_EXTENSIONS
-    MAX_FILE_SIZE = settings.MAX_FILE_SIZE
-    
-    @classmethod
-    async def process_uploaded_file(cls, file: UploadFile) -> Tuple[str, str]:
-        """Process uploaded file and extract text content."""
-        
-        # Validate file size
-        if file.size and file.size > cls.MAX_FILE_SIZE:
-            raise ValueError(f"File size exceeds {cls.MAX_FILE_SIZE // (1024*1024)}MB limit")
-        
-        # Validate file extension
-        file_extension = Path(file.filename).suffix.lower() if file.filename else ""
-        if file_extension not in cls.ALLOWED_EXTENSIONS:
-            raise ValueError(f"Unsupported file type. Allowed types: {', '.join(cls.ALLOWED_EXTENSIONS)}")
-        
-        # Read file content
-        content = await file.read()
-        
-        # Reset file pointer for potential re-reading
-        await file.seek(0)
-        
-        # Extract text based on file type
-        if file_extension == '.pdf':
-            text_content = cls._extract_pdf_text(content)
-        elif file_extension in ['.docx', '.doc']:
-            text_content = cls._extract_docx_text(content)
-        elif file_extension == '.txt':
-            text_content = content.decode('utf-8')
-        else:
-            raise ValueError(f"Unsupported file type: {file_extension}")
-        
-        return text_content, file_extension
-    
-    @classmethod
-    def process_local_file(cls, file_path: Path) -> Tuple[str, str]:
-        """Process a local file and extract text content."""
-        
-        if not file_path.exists():
-            raise ValueError("File does not exist")
-        
-        # Validate file size
-        file_size = file_path.stat().st_size
-        if file_size > cls.MAX_FILE_SIZE:
-            raise ValueError(f"File size exceeds {cls.MAX_FILE_SIZE // (1024*1024)}MB limit")
-        
-        # Validate file extension
-        file_extension = file_path.suffix.lower()
-        if file_extension not in cls.ALLOWED_EXTENSIONS:
-            raise ValueError(f"Unsupported file type. Allowed types: {', '.join(cls.ALLOWED_EXTENSIONS)}")
-        
-        # Read and process file
-        with open(file_path, 'rb') as f:
-            content = f.read()
-        
-        # Extract text based on file type
-        if file_extension == '.pdf':
-            text_content = cls._extract_pdf_text(content)
-        elif file_extension in ['.docx', '.doc']:
-            text_content = cls._extract_docx_text(content)
-        elif file_extension == '.txt':
-            text_content = content.decode('utf-8')
-        else:
-            raise ValueError(f"Unsupported file type: {file_extension}")
-        
-        return text_content, file_extension
+    """Utilities for processing uploaded files and extracting text content."""
     
     @staticmethod
-    def _extract_pdf_text(content: bytes) -> str:
+    def validate_file(file: UploadFile) -> None:
+        """
+        Validate uploaded file meets requirements.
+        
+        Args:
+            file: FastAPI UploadFile object
+            
+        Raises:
+            FileProcessingError: If file doesn't meet requirements
+        """
+        if not file.filename:
+            raise FileProcessingError("No filename provided")
+        
+        file_extension = os.path.splitext(file.filename)[1].lower()
+        if file_extension not in settings.ALLOWED_EXTENSIONS:
+            allowed = ", ".join(settings.ALLOWED_EXTENSIONS)
+            raise FileProcessingError(f"File type {file_extension} not allowed. Allowed types: {allowed}")
+
+    @staticmethod
+    async def process_uploaded_file(file: UploadFile) -> Tuple[str, str]:
+        """
+        Process uploaded file and extract text content.
+        
+        Args:
+            file: FastAPI UploadFile object
+            
+        Returns:
+            Tuple of (extracted_text, file_extension)
+            
+        Raises:
+            FileProcessingError: If processing fails
+        """
+        try:
+            file_extension = os.path.splitext(file.filename or "")[1].lower()
+            
+            file_content = await file.read()
+            await file.seek(0)
+            
+            if file_extension == '.txt':
+                return FileProcessor._extract_text_from_txt(file_content), file_extension
+            elif file_extension == '.pdf':
+                return await FileProcessor._extract_text_from_pdf(file_content), file_extension
+            elif file_extension in ['.docx', '.doc']:
+                return await FileProcessor._extract_text_from_docx(file_content), file_extension
+            else:
+                raise FileProcessingError(f"Unsupported file type: {file_extension}")
+                
+        except Exception as e:
+            raise FileProcessingError(f"Failed to process file: {str(e)}")
+
+    @staticmethod
+    def _extract_text_from_txt(content: bytes) -> str:
+        """Extract text from TXT file."""
+        try:
+            return content.decode('utf-8')
+        except UnicodeDecodeError:
+            try:
+                return content.decode('latin-1')
+            except UnicodeDecodeError:
+                return content.decode('utf-8', errors='ignore')
+
+    @staticmethod
+    async def _extract_text_from_pdf(content: bytes) -> str:
         """Extract text from PDF file."""
         try:
-            pdf_reader = PyPDF2.PdfReader(io.BytesIO(content))
-            text = ""
+            from pdfminer.high_level import extract_text
+            from io import BytesIO
             
-            for page in pdf_reader.pages:
-                text += page.extract_text() + "\n"
+            def extract_sync():
+                return extract_text(BytesIO(content))
+            
+            loop = asyncio.get_event_loop()
+            text = await loop.run_in_executor(None, extract_sync)
             
             if not text.strip():
-                raise ValueError("Could not extract text from PDF. The document might be image-based.")
-            
+                raise FileProcessingError("PDF appears to contain no extractable text")
+                
             return text.strip()
-        
-        except Exception as e:
-            raise ValueError(f"Error processing PDF file: {str(e)}")
-    
-    @staticmethod
-    def _extract_docx_text(content: bytes) -> str:
-        """Extract text from DOCX file."""
-        try:
-            import tempfile
-            import os
             
-            # Create a temporary file to work with python-docx
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.docx') as tmp_file:
-                tmp_file.write(content)
-                tmp_file.flush()
-                
-                # Extract text using python-docx
-                doc = DocxDocument(tmp_file.name)
-                text = "\n".join([paragraph.text for paragraph in doc.paragraphs])
-                
-                # Clean up temporary file
-                os.unlink(tmp_file.name)
-                
-                if not text.strip():
-                    raise ValueError("Could not extract text from document. The document might be empty.")
-                
-                return text.strip()
-        
+        except ImportError:
+            raise FileProcessingError("PDF processing not available - pdfminer.six not installed")
         except Exception as e:
-            raise ValueError(f"Error processing DOCX file: {str(e)}")
-    
+            raise FileProcessingError(f"Failed to extract text from PDF: {str(e)}")
+
+    @staticmethod
+    async def _extract_text_from_docx(content: bytes) -> str:
+        """Extract text from DOCX/DOC file."""
+        try:
+            from docx import Document
+            from io import BytesIO
+            
+            def extract_sync():
+                doc = Document(BytesIO(content))
+                paragraphs = []
+                for paragraph in doc.paragraphs:
+                    if paragraph.text.strip():
+                        paragraphs.append(paragraph.text.strip())
+                return '\n\n'.join(paragraphs)
+            
+            # Run in thread pool to avoid blocking
+            loop = asyncio.get_event_loop()
+            text = await loop.run_in_executor(None, extract_sync)
+            
+            if not text.strip():
+                raise FileProcessingError("Document appears to contain no extractable text")
+                
+            return text.strip()
+            
+        except ImportError:
+            raise FileProcessingError("DOCX processing not available - python-docx not installed")
+        except Exception as e:
+            raise FileProcessingError(f"Failed to extract text from document: {str(e)}")
+
     @staticmethod
     def get_document_type(filename: str) -> str:
-        """Determine document type from filename."""
+        """
+        Determine document type based on filename.
+        
+        Args:
+            filename: Original filename
+            
+        Returns:
+            Document type string
+        """
         filename_lower = filename.lower()
         
-        # Legal document keywords
-        legal_keywords = [
-            'contract', 'agreement', 'lease', 'terms', 'conditions',
-            'legal', 'law', 'court', 'settlement', 'nda', 'privacy',
-            'policy', 'license', 'will', 'testament', 'deed', 'patent',
-            'copyright', 'trademark', 'employment', 'divorce', 'custody'
-        ]
+        if any(term in filename_lower for term in ['contract', 'agreement', 'terms']):
+            return 'contract'
+        elif any(term in filename_lower for term in ['lease', 'rental']):
+            return 'lease'
+        elif any(term in filename_lower for term in ['policy', 'insurance']):
+            return 'policy'
+        elif any(term in filename_lower for term in ['manual', 'guide', 'handbook']):
+            return 'manual'
+        elif any(term in filename_lower for term in ['legal', 'law', 'statute']):
+            return 'legal'
+        else:
+            return 'document'
+
+    @staticmethod
+    def clean_filename(filename: str) -> str:
+        """
+        Clean filename for use as document title.
         
-        for keyword in legal_keywords:
-            if keyword in filename_lower:
-                return 'legal'
+        Args:
+            filename: Original filename
+            
+        Returns:
+            Cleaned title string
+        """
+        if not filename:
+            return ""
         
-        # Default to legal for now
-        return 'legal'
+        name_without_ext = os.path.splitext(filename)[0]
+        cleaned = name_without_ext.replace('_', ' ').replace('-', ' ')
+        
+        # Title case
+        return cleaned.title()
