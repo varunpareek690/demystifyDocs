@@ -20,26 +20,26 @@ class VertexAIService:
     def _initialize_vertex(self):
         """Initialize Vertex AI with credentials."""
         try:
-            if settings.GOOGLE_APPLICATION_CREDENTIALS_JSON:
-                # Initialize from JSON string
-                import json
-                from google.oauth2 import service_account
-                credentials_info = json.loads(settings.GOOGLE_APPLICATION_CREDENTIALS_JSON)
-                credentials = service_account.Credentials.from_service_account_info(credentials_info)
+            # if settings.GOOGLE_APPLICATION_CREDENTIALS_JSON:
+            #     # Initialize from JSON string
+            #     import json
+            #     from google.oauth2 import service_account
+            #     credentials_info = json.loads(settings.GOOGLE_APPLICATION_CREDENTIALS_JSON)
+            #     credentials = service_account.Credentials.from_service_account_info(credentials_info)
                 
-                vertexai.init(
-                    project=settings.GOOGLE_CLOUD_PROJECT_ID,
-                    location=settings.VERTEX_AI_LOCATION,
-                    credentials=credentials
-                )
-            else:
-                vertexai.init(
-                    project=settings.GOOGLE_CLOUD_PROJECT_ID,
-                    location=settings.VERTEX_AI_LOCATION
-                )
+            #     vertexai.init(
+            #         project=settings.GOOGLE_CLOUD_PROJECT_ID,
+            #         location=settings.VERTEX_AI_LOCATION,
+            #         credentials=credentials
+            #     )
+            # else:
+            #     vertexai.init(
+            #         project=settings.GOOGLE_CLOUD_PROJECT_ID,
+            #         location=settings.VERTEX_AI_LOCATION
+            #     )
                 
-            self.model = GenerativeModel(settings.VERTEX_AI_MODEL_NAME)
-            
+            # self.model = GenerativeModel(settings.VERTEX_AI_MODEL_NAME)
+            print("ai service used")
         except Exception as e:
             raise ServiceUnavailableError(f"Failed to initialize AI service: {str(e)}")
 
