@@ -1,0 +1,146 @@
+.pdf-viewer-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+}
+
+.pdf-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: #1e1e1e;
+  border-bottom: 1px solid #333;
+  flex-shrink: 0;
+}
+
+.toolbar-left .document-name {
+  font-weight: 500;
+  color: #F58B27;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toolbar-center {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tool-button {
+  background: none;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #ccc;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.tool-button:hover {
+  background-color: #333;
+  border-color: #F58B27;
+  color: #F58B27;
+}
+
+.zoom-indicator {
+  font-size: 0.9rem;
+  color: #ccc;
+  min-width: 45px;
+  text-align: center;
+}
+
+.pdf-content {
+  flex-grow: 1;
+  position: relative;
+  overflow: auto;
+  background-color: #2a2a2a;
+}
+
+.pdf-placeholder,
+.pdf-loading,
+.pdf-error {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #999;
+}
+
+.placeholder-content svg,
+.pdf-error svg {
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.placeholder-content h3,
+.pdf-error h3 {
+  color: #ccc;
+  margin: 0 0 0.5rem 0;
+  font-weight: 500;
+}
+
+.placeholder-content p,
+.pdf-error p {
+  color: #999;
+  margin: 0;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #333;
+  border-top: 3px solid #F58B27;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* PDF iframe styling */
+.pdf-content iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background-color: white;
+}
+
+/* Custom scrollbar for PDF content */
+.pdf-content::-webkit-scrollbar {
+  width: 12px;
+}
+
+.pdf-content::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.pdf-content::-webkit-scrollbar-thumb {
+  background-color: #444;
+  border-radius: 6px;
+  border: 2px solid #1e1e1e;
+}
+
+.pdf-content::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}

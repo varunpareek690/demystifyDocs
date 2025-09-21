@@ -15,10 +15,6 @@ app = FastAPI(
 def on_startup():
     """Initializes directories and services when the app starts."""
     print("🚀 Starting up...")
-    uploads_dir = settings.UPLOAD_DIRECTORY
-    os.makedirs(os.path.join(uploads_dir, "documents"), exist_ok=True)
-    os.makedirs(os.path.join(uploads_dir, "temp"), exist_ok=True)
-    
     try:
         initialize_firebase()
         print("✓ Firebase initialized")

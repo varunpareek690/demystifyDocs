@@ -1,16 +1,13 @@
 :host {
   display: block;
   height: 100%;
-  /* The main background color will show through if the image is transparent */
   background-color: #121212;
   color: #e0e0e0;
 }
 
 .welcome-container {
-  /* Positioning is needed for the background pseudo-element */
   position: relative;
   z-index: 1;
-
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -18,10 +15,9 @@
   height: 100%;
   text-align: center;
   padding: 2rem;
-  box-sizing: border-box; /* Ensures padding doesn't add to the height/width */
+  box-sizing: border-box;
 }
 
-/* This ::before pseudo-element holds our background image */
 .welcome-container::before {
   content: '';
   position: absolute;
@@ -29,17 +25,11 @@
   left: 0;
   width: 100%;
   height: 100%;
-
   background-image: url('/a.png');
-
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-
-  /* This makes the image darker so text is readable. Adjust from 0.0 to 1.0 */
   opacity: 0.5;
-
-  /* Places the background behind the content */
   z-index: -1;
 }
 
@@ -56,29 +46,58 @@
 
 .subtitle {
   font-size: 1.2rem;
-  color: #ccc; /* Slightly lighter to stand out from a dark background */
+  color: #ccc;
   margin-top: 0.5rem;
   margin-bottom: 3rem;
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.7); /* Add a shadow for readability */
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
 }
 
+/* Enhanced Upload Box */
 .upload-box {
-  border: 1px solid #666; /* Make border a bit more visible */
-  border-radius: 10px;
-  padding: 4rem 6rem;
-  margin-bottom: 3rem;
+  border: 2px dashed #666;
+  border-radius: 12px;
+  padding: 3rem 4rem;
+  margin-bottom: 2rem;
   cursor: pointer;
   position: relative;
   transition: all 0.3s ease-in-out;
-  /* Add a semi-transparent background to the box itself */
   background-color: rgba(30, 30, 30, 0.5);
   backdrop-filter: blur(5px);
+  min-width: 400px;
+  max-width: 500px;
+  min-height: 200px;
 }
 
 .upload-box:hover {
   background-color: rgba(30, 30, 30, 0.7);
   border-color: #F58B27;
   box-shadow: 0 0 15px rgba(245, 139, 39, 0.6);
+  transform: translateY(-2px);
+}
+
+.upload-box.drag-over {
+  border-color: #F58B27;
+  background-color: rgba(245, 139, 39, 0.1);
+  box-shadow: 0 0 20px rgba(245, 139, 39, 0.8);
+  transform: scale(1.02);
+}
+
+.upload-box.uploading {
+  border-color: #4A90E2;
+  background-color: rgba(74, 144, 226, 0.1);
+  cursor: not-allowed;
+}
+
+.upload-box.success {
+  border-color: #4CAF50;
+  background-color: rgba(76, 175, 80, 0.1);
+  box-shadow: 0 0 15px rgba(76, 175, 80, 0.6);
+}
+
+.upload-box.error {
+  border-color: #F44336;
+  background-color: rgba(244, 67, 54, 0.1);
+  box-shadow: 0 0 15px rgba(244, 67, 54, 0.6);
 }
 
 .file-input {
@@ -89,8 +108,125 @@
   height: 100%;
   opacity: 0;
   cursor: pointer;
+  z-index: 1;
 }
 
+.upload-box.uploading .file-input {
+  cursor: not-allowed;
+}
+
+/* Upload Content Styles */
+.upload-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  z-index: 2;
+  position: relative;
+}
+
+.upload-content svg {
+  color: #999;
+  transition: color 0.3s ease;
+}
+
+.upload-box:hover .upload-content svg {
+  color: #F58B27;
+}
+
+.upload-text {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #e0e0e0;
+  margin: 0;
+}
+
+.upload-hint {
+  font-size: 0.9rem;
+  color: #999;
+  margin: 0;
+}
+
+/* Uploading State */
+.uploading-content {
+  pointer-events: none;
+}
+
+.upload-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid #333;
+  border-top: 3px solid #4A90E2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: #333;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0.5rem 0;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4A90E2, #F58B27);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* Success State */
+.success-content svg {
+  color: #4CAF50 !important;
+}
+
+.success-details {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #333;
+  text-align: left;
+  width: 100%;
+}
+
+.success-details p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+.success-details strong {
+  color: #4CAF50;
+}
+
+/* Error State */
+.error-content svg {
+  color: #F44336 !important;
+}
+
+.retry-button {
+  background-color: #F44336;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  transition: background-color 0.2s ease;
+}
+
+.retry-button:hover {
+  background-color: #D32F2F;
+}
+
+/* CTA Button */
 .cta-button {
   background-color: #F58B27;
   color: #121212;
@@ -100,10 +236,90 @@
   border-radius: 50px;
   padding: 1rem 2.5rem;
   cursor: pointer;
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+  min-width: 200px;
 }
 
 .cta-button:hover {
   transform: scale(1.05);
-  box-shadow: 0 4px 20px rgba(245, 139, 39, 0.2);
+  box-shadow: 0 4px 20px rgba(245, 139, 39, 0.4);
+}
+
+.cta-button:disabled {
+  background-color: #666;
+  color: #999;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.cta-button.success {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.cta-button.success:hover {
+  background-color: #45A049;
+  box-shadow: 0 4px 20px rgba(76, 175, 80, 0.4);
+}
+
+/* Upload Tips */
+.upload-tips {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.upload-tips h4 {
+  color: #ccc;
+  font-size: 0.9rem;
+  font-weight: 400;
+  margin: 0 0 1rem 0;
+}
+
+.format-list {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.format-tag {
+  background-color: rgba(245, 139, 39, 0.2);
+  color: #F58B27;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1px solid rgba(245, 139, 39, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .greeting {
+    font-size: 2.5rem;
+  }
+  
+  .upload-box {
+    min-width: 300px;
+    padding: 2rem;
+  }
+  
+  .welcome-container {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .greeting {
+    font-size: 2rem;
+  }
+  
+  .upload-box {
+    min-width: 250px;
+    padding: 1.5rem;
+  }
+  
+  .format-list {
+    gap: 0.25rem;
+  }
 }

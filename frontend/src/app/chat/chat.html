@@ -1,30 +1,193 @@
 <div class="chat-view-container">
   <div class="pdf-viewer-section">
-    <div class="pdf-placeholder">
-      <p>Your PDF will be displayed here.</p>
-    </div>
+    <!-- PDF Viewer Component -->
+    <app-pdf-viewer 
+      [pdfUrl]="pdfUrl()" 
+      [filename]="document()?.filename || 'document.pdf'">
+    </app-pdf-viewer>
 
-    <div class="chat-overlay-section" [class.collapsed]="isChatCollapsed()" [class.is-resizing]="isDragging()" [style.height.vh]="isChatCollapsed() ? null : chatHeightVh()">
+    <!-- Chat Overlay Section -->
+    <div class="chat-overlay-section" 
+         [class.collapsed]="isChatCollapsed()" 
+         [class.is-resizing]="isDragging()" 
+         [style.height.vh]="isChatCollapsed() ? null : chatHeightVh()">
+      
       <div class="resizer-y" (mousedown)="startResize($event, 'height')"></div>
+      
       <button class="collapse-button" (click)="toggleChat()" title="Toggle chat window">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </button>
 
-      <div class="conversation-area"></div>
+      <!-- Conversation Area -->
+      <div class="conversation-area">
+        <!-- Error Display -->
+        <div class="error-message" *ngIf="error()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <span>{{ error() }}</span>
+        </div>
+
+        <!-- Messages -->
+        <div class="messages-container">
+          <div class="message" 
+               *ngFor="let message of messages()" 
+               [class.user-message]="message.role === 'user'"
+               [class.ai-message]="message.role === 'ai'">
+            
+            <div class="message-avatar">
+              <svg *ngIf="message.role === 'user'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <svg *ngIf="message.role === 'ai'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M12 1v6m0 6v6"></path>
+                <path d="M1 12h6m6 0h6"></path>
+              </svg>
+            </div>
+            
+            <div class="message-content">
+              <div class="message-text">{{ message.content }}</div>
+              <div class="message-time">{{ message.timestamp | date:'short' }}</div>
+            </div>
+          </div>
+
+          <!-- Loading Message -->
+          <div class="message ai-message" *ngIf="isLoading()">
+            <div class="message-avatar">
+              <div class="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+            <div class="message-content">
+              <div class="message-text">Thinking...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Suggested Questions -->
+        <div class="suggested-questions" *ngIf="suggestedQuestions().length > 0 && messages().length <= 1">
+          <h4>Suggested Questions:</h4>
+          <div class="question-buttons">
+            <button *ngFor="let question of suggestedQuestions().slice(0, 3)" 
+                    class="question-button"
+                    (click)="useSuggestedQuestion(question)"
+                    [disabled]="isLoading()">
+              {{ question }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input Area -->
       <div class="input-area">
-        <input type="text" placeholder="Ask a question about your document...">
-        <button class="send-button" title="Send message">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
+        <div class="input-container">
+          <input type="text" 
+                 placeholder="Ask a question about your document..."
+                 [value]="currentMessage()"
+                 (input)="onInputChange($event)"
+                 (keydown)="onKeyDown($event)"
+                 [disabled]="isLoading()"
+                 class="message-input">
+          
+          <button class="send-button" 
+                  (click)="sendMessage()"
+                  [disabled]="!currentMessage().trim() || isLoading()"
+                  title="Send message">
+            <svg *ngIf="!isLoading()" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div *ngIf="isLoading()" class="button-spinner"></div>
+          </button>
+        </div>
       </div>
     </div>
   </div>
 
+  <!-- Resizer -->
   <div class="resizer-x" (mousedown)="startResize($event, 'width')"></div>
 
+  <!-- Summary Section -->
   <div class="summary-section" [style.width.px]="summaryWidth()">
-    <h3 class="summary-title">Summary</h3>
+    <div class="summary-header">
+      <h3 class="summary-title">Document Summary</h3>
+      <div class="document-info" *ngIf="document()">
+        <span class="document-name">{{ document()!.title }}</span>
+        <span class="document-type">{{ document()!.document_type || 'Document' }}</span>
+      </div>
+    </div>
+
     <div class="summary-content">
-      <p>An AI-generated summary of your document will appear here.</p>
+      <!-- Loading State -->
+      <div class="summary-loading" *ngIf="isLoading() && !summary()">
+        <div class="loading-spinner"></div>
+        <p>Analyzing document...</p>
+      </div>
+
+      <!-- Summary Content -->
+      <div class="summary-data" *ngIf="summary()">
+        <div class="summary-section-item">
+          <h4>Summary</h4>
+          <p>{{ summary()!.summary }}</p>
+        </div>
+
+        <div class="summary-section-item" *ngIf="summary()!.key_points?.length">
+          <h4>Key Points</h4>
+          <ul>
+            <li *ngFor="let point of summary()!.key_points">{{ point }}</li>
+          </ul>
+        </div>
+
+        <div class="summary-section-item" *ngIf="summary()!.complexity_score">
+          <h4>Complexity</h4>
+          <div class="complexity-indicator">
+            <div class="complexity-bar">
+              <div class="complexity-fill" [style.width.%]="summary()!.complexity_score * 10"></div>
+            </div>
+            <span>{{ summary()!.complexity_score }}/10</span>
+          </div>
+        </div>
+
+        <div class="summary-section-item" *ngIf="summary()!.obligations?.length">
+          <h4>Your Obligations</h4>
+          <ul>
+            <li *ngFor="let obligation of summary()!.obligations">{{ obligation }}</li>
+          </ul>
+        </div>
+
+        <div class="summary-section-item" *ngIf="summary()!.rights?.length">
+          <h4>Your Rights</h4>
+          <ul>
+            <li *ngFor="let right of summary()!.rights">{{ right }}</li>
+          </ul>
+        </div>
+
+        <div class="summary-section-item" *ngIf="summary()!.risks?.length">
+          <h4>Potential Risks</h4>
+          <ul class="risks-list">
+            <li *ngFor="let risk of summary()!.risks">{{ risk }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Default State -->
+      <div class="summary-placeholder" *ngIf="!summary() && !isLoading()">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14,2 14,8 20,8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
+        <p>Upload a document to see its AI-generated summary here.</p>
+      </div>
     </div>
   </div>
+</div>

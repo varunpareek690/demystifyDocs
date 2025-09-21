@@ -2,7 +2,6 @@ import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { AuthService } from '../auth.service'; // Import our new AuthService
 
 declare global {
   interface Window {
@@ -18,13 +17,12 @@ declare global {
   styleUrl: './auth.css'
 })
 export class Auth implements OnInit, AfterViewInit {
-  private apiUrl = 'http://10.238.216.143:8080/api/v1'; // Your backend IP
+  private apiUrl = 'http://localhost:8080/api/v1';
 
-  constructor(
-    private http: HttpClient,
-    private router: Router,
-    private authService: AuthService
-  ) {}
+  loading = false;
+  error = '';
+  
+  constructor(private http: HttpClient, private router: Router) {}
 
   ngOnInit() {
     this.initializeGoogleAuth();

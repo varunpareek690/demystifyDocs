@@ -284,3 +284,6 @@ class DocumentChunker:
             'processing_time_estimate_seconds': len(chunks) * 2,  # Rough estimate
             'chunk_sizes': [len(chunk) for chunk in chunks]
         }
+        
+# Backwards compatibility alias: some modules expect TextChunker
+TextChunker = DocumentChunker

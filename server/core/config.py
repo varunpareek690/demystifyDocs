@@ -1,5 +1,3 @@
-# /server/core/config.py
-
 from pydantic_settings import BaseSettings
 from typing import List
 import os
@@ -41,6 +39,8 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    
+    LOCAL_STORAGE_PATH: str = "local_uploads" 
     
     # File upload settings
     MAX_FILE_SIZE: int = 10 * 1024 * 1024  # 10MB

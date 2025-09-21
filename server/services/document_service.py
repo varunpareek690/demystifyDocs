@@ -5,9 +5,10 @@ from core.firebase_config import get_firestore_client
 from models.document import Document, DocumentUpload, DocumentSummary, FileUploadResponse
 from models.chat import ChatSession
 from services.ai_service import VertexAIService
-from services.file_storage_gcs import GCSFileStorage
+from services.file_storage_local import LocalFileStorage
 from utils.exceptions import NotFoundError, FileProcessingError, ServiceUnavailableError
 from utils.text_extractor import TextExtractor
+
 import uuid
 
 class DocumentService:
@@ -19,7 +20,7 @@ class DocumentService:
         self.summaries_collection = self.db.collection('summaries')
         self.chat_sessions_collection = self.db.collection('chat_sessions')
         self.ai_service = VertexAIService()
-        self.file_storage = GCSFileStorage()
+        self.file_storage = LocalFileStorage()
         self.text_extractor = TextExtractor()
 
     async def upload_document(self, user_id: str, document_data: DocumentUpload) -> Document:
