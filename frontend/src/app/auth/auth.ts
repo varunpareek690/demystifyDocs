@@ -1,6 +1,11 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+<<<<<<< Updated upstream
+=======
+import { Router } from '@angular/router';
+import { AuthService } from '../auth.service'; // Import our new AuthService
+>>>>>>> Stashed changes
 
 declare global {
   interface Window {
@@ -12,6 +17,7 @@ declare global {
   selector: 'app-auth',
   standalone: true,
   imports: [CommonModule],
+<<<<<<< Updated upstream
   template: `
     <div class="auth-container">
       <div class="auth-card">
@@ -77,6 +83,19 @@ export class Auth implements OnInit, AfterViewInit {
   private apiUrl = 'http://10.238.216.143:8080/api/v1'; // Remember to replace this with your actual backend IP
   
   constructor(private http: HttpClient) {}
+=======
+  templateUrl: './auth.html',
+  styleUrl: './auth.css'
+})
+export class Auth implements OnInit, AfterViewInit {
+  private apiUrl = 'http://10.238.216.143:8080/api/v1'; // Your backend IP
+
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private authService: AuthService
+  ) {}
+>>>>>>> Stashed changes
 
   ngOnInit() {
     this.initializeGoogleAuth();
@@ -89,9 +108,11 @@ export class Auth implements OnInit, AfterViewInit {
 
   async initializeGoogleAuth() {
     try {
+<<<<<<< Updated upstream
       // Get the Google Client ID dynamically from your backend
+=======
+>>>>>>> Stashed changes
       const config: any = await this.http.get(`${this.apiUrl}/auth/google/config`).toPromise();
-      
       if (window.google) {
         window.google.accounts.id.initialize({
           client_id: config.data.client_id,
@@ -109,13 +130,7 @@ export class Auth implements OnInit, AfterViewInit {
       if (googleButtonElement) {
         window.google.accounts.id.renderButton(
           googleButtonElement,
-          {
-            type: "standard",
-            shape: "rectangular", 
-            theme: "outline",
-            text: "signin_with",
-            size: "large"
-          }
+          { theme: "outline", size: "large", width: "300" }
         );
       }
     }
@@ -130,13 +145,19 @@ export class Auth implements OnInit, AfterViewInit {
 
   async loginWithGoogle(idToken: string) {
     try {
+<<<<<<< Updated upstream
       // Send the Google ID token to your backend for verification
       const result: any = await this.http.post(`${this.apiUrl}/auth/google`, { 
         id_token: idToken 
+=======
+      const result: any = await this.http.post(`${this.apiUrl}/auth/google`, {
+        id_token: idToken
+>>>>>>> Stashed changes
       }).toPromise();
-      
+
       console.log('Login successful:', result);
       
+<<<<<<< Updated upstream
       // After successful login, your backend should return your own app's token.
       // You would then save it and redirect the user.
       // Example:
@@ -152,6 +173,16 @@ export class Auth implements OnInit, AfterViewInit {
   signInWithGoogle() {
     if (window.google && window.google.accounts) {
       window.google.accounts.id.prompt();
+=======
+      if (result && result.data && result.data.access_token) {
+        this.authService.saveUserAndToken(result.data.access_token);
+        this.router.navigate(['/welcome']);
+      } else {
+         console.error('Login failed: No access_token in response');
+      }
+    } catch (error) {
+      console.error('Login failed:', error);
+>>>>>>> Stashed changes
     }
   }
 }
