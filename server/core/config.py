@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     
     GOOGLE_CLIENT_ID: str
     GOOGLE_CLIENT_SECRET: str
-    GOOGLE_OAUTH_REDIRECT_URI: str = "http://10.238.216.115:4200"
+    GOOGLE_OAUTH_REDIRECT_URI: str = "http://localhost:4200"
     
     FIREBASE_PROJECT_ID: str
     FIREBASE_PRIVATE_KEY_ID: str
