@@ -6,6 +6,7 @@ import { AuthService } from '../auth.service';
   selector: 'app-profile-badge',
   standalone: true,
   imports: [CommonModule],
+
   templateUrl: './profile-badge.html',
   styleUrl: './profile-badge.css'
 })

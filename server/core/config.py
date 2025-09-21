@@ -2,14 +2,14 @@ from pydantic_settings import BaseSettings
 from typing import List
 
 class Settings(BaseSettings):
-    """Application settings."""
+    """Application settings..."""
     FRONTEND_URL: str = "http://localhost:4200"
     
     CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:4200", "http://10.238.216.115:4200"]
     
     GOOGLE_CLIENT_ID: str
     GOOGLE_CLIENT_SECRET: str
-    GOOGLE_OAUTH_REDIRECT_URI: str = "http://10.238.216.115:4200"
+    GOOGLE_OAUTH_REDIRECT_URI: str = "http://localhost:4200"
     
     FIREBASE_PROJECT_ID: str
     FIREBASE_PRIVATE_KEY_ID: str
