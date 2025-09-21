@@ -1,4 +1,4 @@
-# ingest.py - Handles document processing and vector database indexing
+#  Handles document processing and vector database indexing
 
 # Imports
 import os
@@ -100,7 +100,7 @@ def process_document(file_path):
 
 
 if __name__ == "__main__":
-    sample_doc_path = "sample.pdf"
+    sample_doc_path = "legal doc.pdf"
     
     if not all([VECTOR_SEARCH_INDEX_ID, VECTOR_SEARCH_ENDPOINT_ID]):
         logging.error("Please add your VECTOR_SEARCH_INDEX_ID and VECTOR_SEARCH_ENDPOINT_ID to your .env file.")
