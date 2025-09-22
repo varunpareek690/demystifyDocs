@@ -147,3 +147,27 @@
 .recent-chats::-webkit-scrollbar-thumb:hover {
   background-color: #555;
 }
+/* Paste this at the end of the existing file content */
+
+.history-link {
+  display: block;
+  padding: 8px 12px;
+  color: #ccc;
+  text-decoration: none;
+  border-radius: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  font-size: 0.9rem; /* Added for consistency */
+}
+
+.history-link:hover {
+  background-color: #333;
+}
+
+.active-link {
+  background-color: #F58B27 !important;
+  color: #121212 !important;
+  font-weight: 500;
+}

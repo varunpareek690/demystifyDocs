@@ -1,12 +1,13 @@
-import { Component, Input, Output, EventEmitter, signal } from '@angular/core'; // 1. Import signal
+import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { Settings } from '../settings/settings'; // 2. Import the Settings component
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Settings } from '../settings/settings';
+import { chatHistoryData } from '../mock-data';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, Settings], // 3. Add Settings to the imports array
+  imports: [CommonModule, Settings, RouterModule],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css'
 })
@@ -14,20 +15,22 @@ export class Sidebar {
   @Input() isCollapsed = false;
   @Output() toggleSidebar = new EventEmitter<void>();
 
-  // 4. Add a signal to control the settings modal's visibility
   isSettingsOpen = signal(false);
+  
+  // Expose mock data to the template
+  chatHistory = chatHistoryData;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, public route: ActivatedRoute) {}
 
   onMenuClick() {
     this.toggleSidebar.emit();
   }
 
   createNewChat() {
-    this.router.navigate(['/']);
+    // Navigate to the welcome page to start a new chat flow
+    this.router.navigate(['/welcome']);
   }
 
-  // 5. Create a function to open/close the modal
   toggleSettings() {
     this.isSettingsOpen.set(!this.isSettingsOpen());
   }

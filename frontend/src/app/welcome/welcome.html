@@ -1,6 +1,6 @@
 <div class="welcome-container">
   <h2 class="greeting">Hello, Bhaiya</h2>
-  <p class="subtitle">Get started by uploading your PDF document.</p>
+  <p class="subtitle">Get started by uploading your document.</p>
 
   <div class="upload-box" 
        [class.drag-over]="isDragOver()"
@@ -8,7 +8,7 @@
        [class.uploading]="isUploading()"
        [class.success]="uploadSuccess()"
        [class.error]="uploadError()"
-       (click)="!isUploading() && fileInput.click()"
+       (click)="!isUploading() && !uploadSuccess() && fileInput.click()"
        (dragover)="onDragOver($event)"
        (dragleave)="onDragLeave($event)"
        (drop)="onDrop($event)">
@@ -19,25 +19,19 @@
            accept=".pdf,.doc,.docx,.txt"
            (change)="onFileSelected($event)" />
 
-    <div class="upload-content" *ngIf="!selectedFile() && !isUploading() && !uploadSuccess() && !uploadError()">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-        <polyline points="17,8 12,3 7,8"></polyline>
-        <line x1="12" y1="3" x2="12" y2="15"></line>
-      </svg>
-      <span class="upload-text">Drag and drop your file here, or click to browse</span>
-      <span class="upload-hint">Supports PDF, DOC, DOCX, and TXT files (max 10MB)</span>
+    <div class="upload-content" *ngIf="!isUploading() && !uploadSuccess() && !uploadError()">
+      <ng-container *ngIf="!selectedFile(); else fileSelected">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17,8 12,3 7,8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+        <span class="upload-text">Drag and drop your file here, or click to browse</span>
+        <span class="upload-hint">Supports PDF, DOC, DOCX, and TXT files (max 10MB)</span>
+      </ng-container>
+      <ng-template #fileSelected>
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14,2 14,8 20,8"></polyline></svg>
+        <span class="upload-text">{{ selectedFile()!.name }}</span>
+        <span class="upload-hint">{{ (selectedFile()!.size / 1024 / 1024).toFixed(1) }}MB • Click to change</span>
+      </ng-template>
     </div>
-
-    <div class="upload-content" *ngIf="selectedFile() && !isUploading() && !uploadSuccess() && !uploadError()">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-        <polyline points="14,2 14,8 20,8"></polyline>
-      </svg>
-      <span class="upload-text">{{ selectedFile()!.name }}</span>
-      <span class="upload-hint">{{ (selectedFile()!.size / 1024 / 1024).toFixed(1) }}MB • Click to change</span>
-    </div>
-
+    
     <div class="upload-content uploading-content" *ngIf="isUploading()">
       <div class="upload-spinner"></div>
       <span class="upload-text">{{ getStatusMessage() }}</span>
@@ -47,41 +41,25 @@
       <span class="upload-hint">{{ uploadProgress().progress }}% complete</span>
     </div>
 
-    <!-- Success state -->
     <div class="upload-content success-content" *ngIf="uploadSuccess()">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-        <polyline points="22,4 12,14.01 9,11.01"></polyline>
-      </svg>
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22,4 12,14.01 9,11.01"></polyline></svg>
       <span class="upload-text">Document processed successfully!</span>
-      <span class="upload-hint">{{ uploadSuccess()!.data.document.title }}</span>
-      <div class="success-details">
-        <p><strong>Summary:</strong> {{ uploadSuccess()!.data.summary.summary.slice(0, 150) }}...</p>
-        <p><strong>{{ uploadSuccess()!.data.suggested_questions.length }} questions</strong> generated for discussion</p>
-      </div>
+      <span class="upload-hint">Ready to open chat session.</span>
     </div>
 
-    <!-- Error state -->
     <div class="upload-content error-content" *ngIf="uploadError()">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="12"></line>
-        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-      </svg>
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
       <span class="upload-text">Upload failed</span>
       <span class="upload-hint">{{ uploadError() }}</span>
-      <button class="retry-button" (click)="resetUpload(); $event.stopPropagation()">
-        Try Again
-      </button>
+      <button class="retry-button" (click)="resetUpload(); $event.stopPropagation()">Try Again</button>
     </div>
   </div>
 
-  <!-- Action Button -->
   <button class="cta-button" 
-          [disabled]="isUploading()"
+          [disabled]="!selectedFile() || isUploading()"
           [class.success]="uploadSuccess()"
-          (click)="navigateToChat()">
-    <span *ngIf="!uploadSuccess() && !isUploading()">Start Chatting</span>
+          (click)="uploadSuccess() ? proceedToChat() : startProcessing()">
+    <span *ngIf="!uploadSuccess() && !isUploading()">Start Processing</span>
     <span *ngIf="isUploading()">Processing...</span>
     <span *ngIf="uploadSuccess()">Open Chat Session</span>
   </button>

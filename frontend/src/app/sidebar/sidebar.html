@@ -10,27 +10,28 @@
     <span *ngIf="!isCollapsed" class="button-text">New Chat</span>
   </button>
   
-  <div class="search-section">
-    <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.16667 15.8333C12.8486 15.8333 15.8333 12.8486 15.8333 9.16667C15.8333 5.48477 12.8486 2.5 9.16667 2.5C5.48477 2.5 2.5 5.48477 2.5 9.16667C2.5 12.8486 5.48477 15.8333 9.16667 15.8333Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17.5 17.5L13.875 13.875" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <input *ngIf="!isCollapsed" type="text" placeholder="Search..." class="search-input">
-  </div>
-
   <div class="recent-chats">
     <p *ngIf="!isCollapsed" class="recent-title">Recent</p>
     <ul *ngIf="!isCollapsed">
-      <li>Chat about project proposal...</li>
-      <li>Summary of Q2 earnings call...</li>
-      <li>Notes on market research...</li>
+      <li *ngFor="let chat of chatHistory">
+        <a [routerLink]="['/chat', chat.id]" 
+           routerLinkActive="active-link" 
+           class="history-link"
+           [title]="chat.title">
+          {{ chat.title }}
+        </a>
+      </li>
     </ul>
   </div>
 
   <div class="sidebar-footer">
-  <button class="settings-button" (click)="toggleSettings()">
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M17.5 10C17.5 9.20435 17.1839 8.44129 16.6213 7.87868C16.0587 7.31607 15.2956 7 14.5 7C14.394 7 14.288 7.008 14.184 7.025L12.593 2.805C12.486 2.511 12.28 2.27 12.011 2.126C11.742 1.981 11.429 1.948 11.131 2.035L7.5 3.251L4.965 2.035C4.667 1.948 4.354 1.981 4.085 2.126C3.816 2.27 3.61 2.511 3.503 2.805L1.912 7.025C1.808 7.008 1.702 7 1.596 7C0.800361 7 0.0373028 7.31607 -0.525316 7.87868C-1.08794 8.44129 -1.40393 9.20435 -1.40393 10C-1.40393 10.7956 -1.08794 11.5587 -0.525316 12.1213C0.0373028 12.6839 0.800361 13 1.596 13C1.702 13 1.808 12.992 1.912 12.975L3.503 17.195C3.61 17.489 3.816 17.73 4.085 17.874C4.354 18.019 4.667 18.052 4.965 17.965L7.5 16.749L11.131 17.965C11.429 18.052 11.742 18.019 12.011 17.874C12.28 17.73 12.486 17.489 12.593 17.195L14.184 12.975C14.288 12.992 14.394 13 14.5 13C15.2956 13 16.0587 12.6839 16.6213 12.1213C17.1839 11.5587 17.5 10.7956 17.5 10Z" transform="translate(1.90393)" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M7.5 10C7.5 11.3807 6.38071 12.5 5 12.5C3.61929 12.5 2.5 11.3807 2.5 10C2.5 8.61929 3.61929 7.5 5 7.5C6.38071 7.5 7.5 8.61929 7.5 10Z" transform="translate(2.5)" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    <span *ngIf="!isCollapsed" class="button-text">Settings</span>
-  </button>
+    <button class="settings-button" (click)="toggleSettings()">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M17.5 10C17.5 9.20435 17.1839 8.44129 16.6213 7.87868C16.0587 7.31607 15.2956 7 14.5 7C14.394 7 14.288 7.008 14.184 7.025L12.593 2.805C12.486 2.511 12.28 2.27 12.011 2.126C11.742 1.981 11.429 1.948 11.131 2.035L7.5 3.251L4.965 2.035C4.667 1.948 4.354 1.981 4.085 2.126C3.816 2.27 3.61 2.511 3.503 2.805L1.912 7.025C1.808 7.008 1.702 7 1.596 7C0.800361 7 0.0373028 7.31607 -0.525316 7.87868C-1.08794 8.44129 -1.40393 9.20435 -1.40393 10C-1.40393 10.7956 -1.08794 11.5587 -0.525316 12.1213C0.0373028 12.6839 0.800361 13 1.596 13C1.702 13 1.808 12.992 1.912 12.975L3.503 17.195C3.61 17.489 3.816 17.73 4.085 17.874C4.354 18.019 4.667 18.052 4.965 17.965L7.5 16.749L11.131 17.965C11.429 18.052 11.742 18.019 12.011 17.874C12.28 17.73 12.486 17.489 12.593 17.195L14.184 12.975C14.288 12.992 14.394 13 14.5 13C15.2956 13 16.0587 12.6839 16.6213 12.1213C17.1839 11.5587 17.5 10.7956 17.5 10Z" transform="translate(1.90393)" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M7.5 10C7.5 11.3807 6.38071 12.5 5 12.5C3.61929 12.5 2.5 11.3807 2.5 10C2.5 8.61929 3.61929 7.5 5 7.5C6.38071 7.5 7.5 8.61929 7.5 10Z" transform="translate(2.5)" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span *ngIf="!isCollapsed" class="button-text">Settings</span>
+    </button>
+  </div>
 </div>
 <app-settings *ngIf="isSettingsOpen()" (closeModal)="toggleSettings()"></app-settings>
