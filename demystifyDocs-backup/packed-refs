@@ -1,0 +1,13 @@
+# pack-refs with: peeled fully-peeled sorted 
+bb2d327a8016be682fcb7584ecfc3c28b3714367 refs/heads/feature/RAG_service
+3ac601713cee5e7b5acdbc441ae6a3594db54a76 refs/heads/feature/parser
+b13ddbfffed15daaa91e26f6aa9d0f98752b90f3 refs/heads/frontend-implementation-
+f4fc9e6617b34ca6a23a3ddfe11ef18d30f7f184 refs/heads/main
+3ac601713cee5e7b5acdbc441ae6a3594db54a76 refs/pull/1/head
+0b12e3b77212a525431be4a664d0c11c0c22374b refs/pull/2/head
+6fd4b38d7e17ac7b64a2a0b965732af9de5dd4b8 refs/pull/3/head
+c5114348ce977335fd17766c523b8e8cc8233679 refs/pull/4/head
+11f4ef5300bcd0e6b211b1b2c2fc87c88a803f39 refs/pull/5/head
+a5396f084199f59f935bd65233e33bcb16c3f661 refs/pull/6/head
+383050bf493a47f68ba2932d6342743fd9f4eeec refs/pull/7/head
+bb2d327a8016be682fcb7584ecfc3c28b3714367 refs/pull/8/head
