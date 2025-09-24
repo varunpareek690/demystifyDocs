@@ -28,3 +28,8 @@ uploads/
 
 # Node modules
 node_modules/
+# Never commit env files
+.env
+*/.env
+RAG_Service/.env
+server/.env
